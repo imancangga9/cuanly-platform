@@ -483,7 +483,7 @@ export function TransactionsClientV2({ products, channels, transactions }: { pro
                 <p className="font-semibold mb-3">Produk</p>
                 <div className="space-y-3">
                   {selectedTransaction.transaction_items?.map((item, index) => (
-                    <div key={item.id || index} className="flex gap-3 items-start border p-3 rounded-lg">
+                    <div key={index} className="flex gap-3 items-start border p-3 rounded-lg">
                       {item.products?.photo_url ? (
                         <img 
                           src={item.products.photo_url} 
@@ -528,7 +528,7 @@ export function TransactionsClientV2({ products, channels, transactions }: { pro
                   <p className="font-semibold mb-3">Pengurang</p>
                   <div className="space-y-2">
                     {selectedTransaction.transaction_adjustments.map((adj, index) => (
-                      <div key={adj.id || index} className="flex justify-between items-center">
+                      <div key={index} className="flex justify-between items-center">
                         <p>{adj.title}</p>
                         <p className="text-red-500 font-medium">-{formatCurrency(adj.amount)}</p>
                       </div>
