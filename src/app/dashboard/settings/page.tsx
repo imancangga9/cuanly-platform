@@ -1,8 +1,20 @@
+import { createClient } from "@/lib/supabase/server"
 import { getProfile } from "@/actions/profile"
-import { getPricingSettings } from "@/actions/pricing"
+import { getChannels } from "@/actions/channels"
 import { SettingsClient } from "./client"
 
 export default async function SettingsPage() {
-  const [profile, pricing] = await Promise.all([getProfile(), getPricingSettings()])
-  return <SettingsClient profile={profile} pricing={pricing} />
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const [profile, channels] = await Promise.all([getProfile(), getChannels()])
+
+  return (
+    <SettingsClient
+      profile={profile}
+      channels={channels}
+      userEmail={user?.email || ""}
+      userFullName={user?.user_metadata?.full_name || ""}
+    />
+  )
 }

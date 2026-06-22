@@ -14,7 +14,11 @@ export default async function DashboardPage() {
 
   const { data: transactions } = await supabase
     .from("transactions")
-    .select("*, products(name)")
+    .select(`
+      *,
+      transaction_items(*),
+      transaction_adjustments(*)
+    `)
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(100)
@@ -29,16 +33,18 @@ export default async function DashboardPage() {
     .select("*")
     .eq("user_id", user.id)
 
-  const totalRevenue = (transactions || []).reduce((s, t) => s + Number(t.revenue), 0)
-  const totalProfit = (transactions || []).reduce((s, t) => s + Number(t.profit), 0)
+  // Calculate totals from V2 transactions schema
+  const totalRevenue = (transactions || []).reduce((s, t) => s + Number(t.subtotal), 0)
+  const totalProfit = (transactions || []).reduce((s, t) => s + Number(t.net_profit), 0)
   const totalExpenses = (expenses || []).reduce((s, e) => s + Number(e.amount), 0)
   const totalProducts = (products || []).length
   const totalTransactions = (transactions || []).length
   const netProfit = totalProfit - totalExpenses
 
+  // Daily profit from net_profit
   const dailyProfit = (transactions || []).reduce<Record<string, number>>((acc, t) => {
     const day = new Date(t.created_at).toISOString().slice(0, 10)
-    acc[day] = (acc[day] || 0) + Number(t.profit)
+    acc[day] = (acc[day] || 0) + Number(t.net_profit)
     return acc
   }, {})
 
@@ -47,9 +53,14 @@ export default async function DashboardPage() {
     .slice(-30)
     .map(([date, profit]) => ({ date, profit }))
 
+  // Product sales from transaction_items
   const productSales = (transactions || []).reduce<Record<string, number>>((acc, t) => {
-    const name = t.products?.name || "Unknown"
-    acc[name] = (acc[name] || 0) + Number(t.qty)
+    if (t.transaction_items) {
+      for (const item of t.transaction_items) {
+        const name = item.product_name_snapshot || "Unknown"
+        acc[name] = (acc[name] || 0) + Number(item.qty)
+      }
+    }
     return acc
   }, {})
 
@@ -113,20 +124,31 @@ export default async function DashboardPage() {
             <p className="text-sm text-muted-foreground">Belum ada transaksi</p>
           ) : (
             <div className="space-y-3">
-              {recentTransactions.map((t) => (
-                <div key={t.id} className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0">
-                  <div>
-                    <p className="text-sm font-medium">{t.products?.name || "Produk"}</p>
-                    <p className="text-xs text-muted-foreground">{t.channel || "-"} &middot; {formatDate(t.created_at)}</p>
+              {recentTransactions.map((t) => {
+                // Get first product name for display
+                const firstProductName = t.transaction_items?.[0]?.product_name_snapshot || "Produk"
+                const hasMultipleItems = t.transaction_items && t.transaction_items.length > 1
+                
+                return (
+                  <div key={t.id} className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0">
+                    <div>
+                      <p className="text-sm font-medium">
+                        {firstProductName}
+                        {hasMultipleItems && <span className="text-muted-foreground"> +{t.transaction_items.length - 1} lainnya</span>}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {t.channel || "-"} &middot; {t.invoice_number ? `#${t.invoice_number}` : ""} {formatDate(t.created_at)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium">{formatCurrency(Number(t.subtotal))}</p>
+                      <p className={cn("text-xs", Number(t.net_profit) >= 0 ? "text-emerald-500" : "text-red-500")}>
+                        {Number(t.net_profit) >= 0 ? "+" : ""}{formatCurrency(Number(t.net_profit))}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">{formatCurrency(Number(t.revenue))}</p>
-                    <p className={cn("text-xs", Number(t.profit) >= 0 ? "text-emerald-500" : "text-red-500")}>
-                      {Number(t.profit) >= 0 ? "+" : ""}{formatCurrency(Number(t.profit))}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </CardContent>

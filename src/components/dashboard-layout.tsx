@@ -4,7 +4,7 @@ import { useState, PropsWithChildren } from "react"
 import { Sidebar } from "@/components/sidebar"
 import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,9 +17,10 @@ import { signOut } from "@/actions/auth"
 interface DashboardLayoutProps extends PropsWithChildren {
   userName?: string
   storeName?: string
+  logoUrl?: string
 }
 
-export function DashboardLayout({ children, userName, storeName }: DashboardLayoutProps) {
+export function DashboardLayout({ children, userName, storeName, logoUrl }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const initials = (userName || "U")
@@ -30,10 +31,10 @@ export function DashboardLayout({ children, userName, storeName }: DashboardLayo
     .slice(0, 2)
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex min-h-screen">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-14 items-center gap-4 border-b px-4 lg:px-6">
+      <div className="flex flex-1 flex-col">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-[oklch(0.145_0_0)] px-4 lg:px-6">
           <Button
             variant="ghost"
             size="icon"
@@ -47,6 +48,7 @@ export function DashboardLayout({ children, userName, storeName }: DashboardLayo
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar className="h-8 w-8">
+                  <AvatarImage src={logoUrl} />
                   <AvatarFallback className="text-xs">{initials}</AvatarFallback>
                 </Avatar>
               </Button>
@@ -69,7 +71,7 @@ export function DashboardLayout({ children, userName, storeName }: DashboardLayo
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</main>
+        <main className="flex-1 p-4 lg:p-6">{children}</main>
       </div>
     </div>
   )

@@ -16,7 +16,7 @@ export default async function DashboardRootLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("store_name")
+    .select("store_name, logo")
     .eq("user_id", user.id)
     .single()
 
@@ -24,6 +24,7 @@ export default async function DashboardRootLayout({
     <DashboardLayout
       userName={user.user_metadata?.full_name}
       storeName={profile?.store_name}
+      logoUrl={profile?.logo}
     >
       {children}
     </DashboardLayout>

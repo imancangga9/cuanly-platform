@@ -30,28 +30,28 @@ export function DashboardChart({ data }: { data: ChartData[] }) {
       <AreaChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
         <defs>
           <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="oklch(0.6 0.2 150)" stopOpacity={0.3} />
-            <stop offset="95%" stopColor="oklch(0.6 0.2 150)" stopOpacity={0} />
+            <stop offset="5%" stopColor="#0fdc78" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="#0fdc78" stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.269 0 0)" />
+        <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.9189 0 0)" />
         <XAxis
           dataKey="date"
-          tick={{ fontSize: 11, fill: "oklch(0.708 0 0)" }}
+          tick={{ fontSize: 11, fill: "oklch(0.5560 0 0)" }}
           tickFormatter={(v) => new Date(v).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
-          tick={{ fontSize: 11, fill: "oklch(0.708 0 0)" }}
+          tick={{ fontSize: 11, fill: "oklch(0.5560 0 0)" }}
           tickFormatter={(v) => formatCurrency(v)}
           axisLine={false}
           tickLine={false}
         />
         <Tooltip
           contentStyle={{
-            background: "oklch(0.205 0 0)",
-            border: "1px solid oklch(0.269 0 0)",
+            background: "oklch(0.9911 0 0)",
+            border: "1px solid oklch(0.9189 0 0)",
             borderRadius: "8px",
             fontSize: "13px",
           }}
@@ -61,7 +61,7 @@ export function DashboardChart({ data }: { data: ChartData[] }) {
         <Area
           type="monotone"
           dataKey="profit"
-          stroke="oklch(0.6 0.2 150)"
+          stroke="#0fdc78"
           strokeWidth={2}
           fill="url(#profitGradient)"
         />

@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "cleanup:proofs": "node scripts/cleanup-old-proofs.js",
+    "auto-cleanup": "node scripts/auto-cleanup.js"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.0",
@@ -20,15 +22,18 @@
     "@radix-ui/react-tabs": "^1.1.0",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.0",
+    "browser-image-compression": "^2.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.0",
     "date-fns": "^4.0.0",
     "lucide-react": "^0.468.0",
     "next": "16.2.9",
     "next-themes": "^0.4.0",
+    "node-cron": "^4.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^2.15.0",
+    "resend": "^6.14.0",
     "tailwind-merge": "^3.0.0"
   },
   "devDependencies": {
