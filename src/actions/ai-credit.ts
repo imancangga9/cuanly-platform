@@ -401,51 +401,67 @@ export async function useAICredit() {
 // Admin Actions
 // ------------------------------
 export async function getAllAICreditOrders(adminOnly = false) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return [];
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
 
-  const supabaseAdmin = createServiceRoleClient();
+    const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY 
+      ? createServiceRoleClient() 
+      : null;
 
-  // Check admin role
-  const { data: profile, error: profileError } = await supabaseAdmin
-    .from("profiles")
-    .select("role")
-    .eq("user_id", user.id)
-    .single();
+    if (!supabaseAdmin) {
+      console.warn("Service role client not available - returning empty orders");
+      return [];
+    }
 
-  if (profileError || !profile || !['admin', 'super_admin'].includes(profile.role)) {
+    // Check admin role
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
+
+    if (profileError || !profile || !['admin', 'super_admin'].includes(profile.role)) {
+      return [];
+    }
+
+    // Get all orders (simple, no join)
+    const { data: orders, error: ordersError } = await supabaseAdmin
+      .from("ai_credit_orders")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (ordersError) {
+      console.error("Error fetching all orders:", ordersError);
+      return [];
+    }
+
+    // Try to get auth users - but if it fails, still return orders without emails
+    let authUsers: any[] = [];
+    try {
+      const { data: { users }, error: authError } = await supabaseAdmin.auth.admin.listUsers();
+      if (!authError) {
+        authUsers = users || [];
+      }
+    } catch (authError) {
+      console.warn("Error fetching auth users, continuing without emails:", authError);
+    }
+
+    // Combine orders with email
+    const ordersWithEmail = orders?.map(order => {
+      const authUser = authUsers?.find(u => u.id === order.user_id);
+      return {
+        ...order,
+        email: authUser?.email || "-",
+      };
+    });
+
+    return ordersWithEmail || [];
+  } catch (err) {
+    console.error("Fatal error in getAllAICreditOrders:", err);
     return [];
   }
-
-  // Get all orders (simple, no join)
-  const { data: orders, error: ordersError } = await supabaseAdmin
-    .from("ai_credit_orders")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (ordersError) {
-    console.error("Error fetching all orders:", ordersError);
-    return [];
-  }
-
-  // Get all auth users for email
-  const { data: { users: authUsers }, error: authError } = await supabaseAdmin.auth.admin.listUsers();
-
-  if (authError) {
-    console.error("Error fetching auth users for orders:", authError);
-  }
-
-  // Combine orders with email
-  const ordersWithEmail = orders?.map(order => {
-    const authUser = authUsers?.find(u => u.id === order.user_id);
-    return {
-      ...order,
-      email: authUser?.email || "-",
-    };
-  });
-
-  return ordersWithEmail || [];
 }
 
 export async function approveAICreditOrder(orderId: string) {
@@ -619,32 +635,57 @@ export async function rejectAICreditOrder(orderId: string) {
 // User Management Actions
 // ============================================
 export async function getTotalUsers() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return 0;
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return 0;
 
-  const supabaseAdmin = createServiceRoleClient();
+    const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY 
+      ? createServiceRoleClient() 
+      : null;
 
-  // Check admin role
-  const { data: profile, error: profileError } = await supabaseAdmin
-    .from("profiles")
-    .select("role")
-    .eq("user_id", user.id)
-    .single();
+    if (!supabaseAdmin) {
+      console.warn("Service role client not available - returning 0 total users");
+      return 0;
+    }
 
-  if (profileError || !profile || !['admin', 'super_admin'].includes(profile.role)) {
+    // Check admin role
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
+
+    if (profileError || !profile || !['admin', 'super_admin'].includes(profile.role)) {
+      return 0;
+    }
+
+    // Try to count from profiles table as fallback
+    const { count, error: countError } = await supabaseAdmin
+      .from("profiles")
+      .select("*", { count: 'exact', head: true });
+
+    if (countError) {
+      console.error("Error counting profiles:", countError);
+      
+      // Try auth users as a last resort
+      try {
+        const { data: { users }, error: authError } = await supabaseAdmin.auth.admin.listUsers();
+        if (!authError && users) {
+          return users.length;
+        }
+      } catch (authError) {
+        console.warn("Error counting auth users:", authError);
+      }
+      
+      return 0;
+    }
+
+    return count || 0;
+  } catch (err) {
+    console.error("Fatal error in getTotalUsers:", err);
     return 0;
   }
-
-  // Count users from auth (admin only)
-  const { data: { users }, error: authError } = await supabaseAdmin.auth.admin.listUsers();
-  
-  if (authError) {
-    console.error("Error counting users:", authError);
-    return 0;
-  }
-  
-  return users.length;
 }
 
 export async function getAllUsers() {

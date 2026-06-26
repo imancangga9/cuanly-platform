@@ -35,20 +35,29 @@ export async function getChannels() {
   return (channels || []) as unknown as Channel[]
 }
 
-export async function createChannel(_prevState: { error?: string } | undefined, formData: FormData) {
+export async function createChannel(_prevStateOrName: { error?: string } | undefined | string, formData?: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: "Unauthorized" }
 
-  const { error } = await supabase.from("channels").insert({
+  let name: string
+  if (typeof _prevStateOrName === "string") {
+    name = _prevStateOrName
+  } else if (formData) {
+    name = formData.get("name") as string
+  } else {
+    return { error: "Name is required" }
+  }
+
+  const { data, error } = await supabase.from("channels").insert({
     user_id: user.id,
-    name: formData.get("name") as string,
-  })
+    name: name,
+  }).select().single()
 
   if (error) return { error: error.message }
   revalidatePath("/dashboard/settings")
   revalidatePath("/dashboard/transactions")
-  return { success: true }
+  return { success: true, data }
 }
 
 export async function deleteChannel(id: string) {
@@ -61,18 +70,29 @@ export async function deleteChannel(id: string) {
   return { error: error?.message }
 }
 
-export async function addFactor(_prevState: { error?: string } | undefined, formData: FormData) {
+export async function addFactor(
+  _prevStateOrParams: { error?: string } | undefined | { channel_id: string; label: string; operation: string; value_type: string; value: number; sort_order: number }, 
+  formData?: FormData
+) {
   const supabase = await createClient()
-  const channelId = formData.get("channel_id") as string
+  let params: { channel_id: string; label: string; operation: string; value_type: string; value: number; sort_order: number }
 
-  const { error } = await supabase.from("channel_factors").insert({
-    channel_id: channelId,
-    label: formData.get("label") as string,
-    operation: formData.get("operation") as string,
-    value_type: formData.get("value_type") as string,
-    value: Number(formData.get("value")),
-    sort_order: Number(formData.get("sort_order")),
-  })
+  if (formData) {
+    params = {
+      channel_id: formData.get("channel_id") as string,
+      label: formData.get("label") as string,
+      operation: formData.get("operation") as string,
+      value_type: formData.get("value_type") as string,
+      value: Number(formData.get("value")),
+      sort_order: Number(formData.get("sort_order")),
+    }
+  } else if (_prevStateOrParams && typeof _prevStateOrParams === "object" && "channel_id" in _prevStateOrParams) {
+    params = _prevStateOrParams
+  } else {
+    return { error: "Invalid parameters" }
+  }
+
+  const { error } = await supabase.from("channel_factors").insert(params)
 
   if (error) return { error: error.message }
   revalidatePath("/dashboard/settings")

@@ -45,3 +45,37 @@ export async function upsertProductChannelPrices(
   revalidatePath("/dashboard/products");
   return { success: true };
 }
+
+export async function createProductChannelPrice(params: {
+  product_id: string;
+  channel_id: string;
+  selling_price: number;
+}) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+
+  // Get channel name
+  const { data: channel } = await supabase
+    .from("channels")
+    .select("name")
+    .eq("id", params.channel_id)
+    .single();
+
+  const { data, error } = await supabase.from("product_channel_prices").upsert(
+    {
+      user_id: user.id,
+      product_id: params.product_id,
+      channel_name: channel?.name || "",
+      channel_id: params.channel_id,
+      recommended_price: params.selling_price,
+      selling_price: params.selling_price,
+      updated_at: new Date().toISOString()
+    },
+    { onConflict: "user_id, product_id, channel_name" }
+  ).select();
+
+  if (error) return { error: error.message };
+  revalidatePath("/dashboard/products");
+  return { success: true, data };
+}

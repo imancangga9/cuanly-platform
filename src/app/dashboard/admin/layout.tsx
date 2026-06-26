@@ -1,8 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { Sidebar } from "@/components/sidebar";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 
 export default async function AdminLayout({
   children,
@@ -16,8 +15,38 @@ export default async function AdminLayout({
     redirect("/login");
   }
 
-  // TODO: Check if user is admin - for now, let's just check a flag or let all access
-  // Later, add proper admin role check
+  // Check if user is admin
+  try {
+    const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY 
+      ? createServiceRoleClient() 
+      : null;
+
+    if (supabaseAdmin) {
+      const { data: profile, error: profileError } = await supabaseAdmin
+        .from("profiles")
+        .select("role")
+        .eq("user_id", user.id)
+        .single();
+
+      if (profileError || !profile || !['admin', 'super_admin'].includes(profile.role)) {
+        redirect("/dashboard");
+      }
+    } else {
+      // Fallback: Try with regular client if service role not available
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("user_id", user.id)
+        .single();
+
+      if (profileError || !profile || !['admin', 'super_admin'].includes(profile.role)) {
+        redirect("/dashboard");
+      }
+    }
+  } catch (error) {
+    console.error("Error checking admin role:", error);
+    redirect("/dashboard");
+  }
 
   return (
     <div className="flex min-h-screen bg-background">

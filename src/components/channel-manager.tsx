@@ -66,11 +66,7 @@ export function ChannelManager({ channels }: { channels: Channel[] }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">
-            Atur channel penjualan dan faktor perhitungan harga masing-masing
-          </p>
-        </div>
+        <div></div>
         <Dialog open={channelOpen} onOpenChange={setChannelOpen}>
           <DialogTrigger asChild>
             <Button>

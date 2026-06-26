@@ -17,10 +17,13 @@ export async function getProducts() {
   return data || []
 }
 
-export async function createProduct(_prevState: { error?: string; success?: boolean } | undefined, formData: FormData) {
+export async function createProduct(_prevStateOrFormData: { error?: string; success?: boolean } | undefined | FormData, formDataParam?: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: "Unauthorized" }
+
+  const formData = _prevStateOrFormData instanceof FormData ? _prevStateOrFormData : formDataParam
+  if (!formData) return { error: "Form data is required" }
 
   let photoUrl: string | null = null
   const photoFile = formData.get("photo") as File | null
@@ -47,20 +50,20 @@ export async function createProduct(_prevState: { error?: string; success?: bool
     photoUrl = publicUrl
   }
 
-  const { error } = await supabase.from("products").insert({
+  const { data, error } = await supabase.from("products").insert({
     user_id: user.id,
     name: formData.get("name") as string,
-    sku: formData.get("sku") as string,
-    category: formData.get("category") as string,
-    description: formData.get("description") as string,
+    sku: (formData.get("sku") as string) || null,
+    category: (formData.get("category") as string) || null,
+    description: (formData.get("description") as string) || null,
     photo_url: photoUrl,
     cost_price: Number(formData.get("cost_price")),
-    stock: Number(formData.get("stock")),
-  })
+    stock: Number(formData.get("stock")) || 0,
+  }).select().single()
 
   if (error) return { error: error.message }
   revalidatePath("/dashboard/products")
-  return { success: true }
+  return { success: true, data }
 }
 
 export async function deleteProduct(id: string) {

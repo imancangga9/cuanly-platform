@@ -1,16 +1,30 @@
+import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { StatCard } from "@/components/stat-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { TrendingUp, TrendingDown, DollarSign, Package, ShoppingCart, Receipt } from "lucide-react"
+import { TrendingUp, TrendingDown, DollarSign, Package, ShoppingCart, Receipt, CheckCircle2 } from "lucide-react"
 import { cn, formatCurrency, formatDate } from "@/lib/utils"
 import { DashboardChart } from "./chart"
+import { getSetupStatus } from "@/actions/setup"
+import { getChannels } from "@/actions/channels"
+import { getProducts } from "@/actions/products"
+import { getAIWallet } from "@/actions/ai-credit"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) return null
+
+  const setupStatus = await getSetupStatus()
+  const channels = await getChannels()
+  const products = await getProducts()
+  const aiWallet = await getAIWallet()
+
+  const isFirstTime = setupStatus?.setup_completed_at && 
+    new Date(setupStatus.setup_completed_at).getTime() > Date.now() - (24 * 60 * 60 * 1000)
 
   const { data: transactions } = await supabase
     .from("transactions")
@@ -28,16 +42,12 @@ export default async function DashboardPage() {
     .select("*")
     .eq("user_id", user.id)
 
-  const { data: products } = await supabase
-    .from("products")
-    .select("*")
-    .eq("user_id", user.id)
-
   // Calculate totals from V2 transactions schema
   const totalRevenue = (transactions || []).reduce((s, t) => s + Number(t.subtotal), 0)
   const totalProfit = (transactions || []).reduce((s, t) => s + Number(t.net_profit), 0)
   const totalExpenses = (expenses || []).reduce((s, e) => s + Number(e.amount), 0)
-  const totalProducts = (products || []).length
+  const totalProducts = products.length
+  const totalChannels = channels.length
   const totalTransactions = (transactions || []).length
   const netProfit = totalProfit - totalExpenses
 
@@ -72,12 +82,42 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {isFirstTime && (
+        <Card className="border-[#0fdc78] bg-[#0fdc78]/5">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <CheckCircle2 className="h-12 w-12 text-[#0fdc78]" />
+              <div>
+                <h3 className="text-xl font-bold mb-1">🎉 Setup berhasil diselesaikan!</h3>
+                <p className="text-muted-foreground">Selamat datang di Cuanly. Toko Anda sudah siap!</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {!setupStatus?.setup_completed && (
+        <Card className="border-dashed border-2 border-[#0fdc78]/50 bg-[#0fdc78]/5">
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-bold mb-1">⭐ Siapkan Toko Anda</h3>
+                <p className="text-muted-foreground text-sm">Selesaikan setup untuk mengaktifkan semua fitur Cuanly, termasuk AI Seller Assistant!</p>
+              </div>
+              <Button asChild className="bg-[#0fdc78] hover:bg-[#0cd66a]">
+                <Link href="/siapkan-toko">Mulai Setup</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Total Revenue" value={formatCurrency(totalRevenue)} icon={DollarSign} trend="up" />
-        <StatCard title="Gross Profit" value={formatCurrency(totalProfit)} icon={TrendingUp} />
-        <StatCard title="Biaya" value={formatCurrency(totalExpenses)} icon={Receipt} trend={totalExpenses > 0 ? "down" : undefined} description={`${expenses?.length || 0} pengeluaran`} />
+        <StatCard title="Produk" value={totalProducts.toString()} icon={Package} description={`Di ${totalChannels} channel`} />
+        <StatCard title="AI Credit" value={(aiWallet?.balance || 0).toString()} icon={ShoppingCart} description="Tersisa" />
         <StatCard title="Net Profit" value={formatCurrency(netProfit)} icon={netProfit >= 0 ? TrendingUp : TrendingDown} description={`Dari ${totalTransactions} transaksi`} />
       </div>
 
