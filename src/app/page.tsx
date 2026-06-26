@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
-  ChartNoAxesCombined,
   Calculator,
   Check,
   ChevronDown,
@@ -23,6 +22,7 @@ import {
 
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [showAllFaqs, setShowAllFaqs] = useState(false)
   const [modal, setModal] = useState(25200)
   const [margin, setMargin] = useState(40)
   const [adminFee, setAdminFee] = useState(5)
@@ -36,16 +36,52 @@ export default function LandingPage() {
 
   const faqs = [
     {
-      question: "Apakah kalkulator harga gratis?",
-      answer: "Ya, Smart Pricing Calculator dapat digunakan unlimited."
+      question: "Apa itu Cuanly?",
+      answer: "Cuanly adalah platform untuk membantu seller dan UMKM mengelola bisnis dalam satu dashboard. Mulai dari menghitung harga jual, mencatat transaksi, memantau keuntungan, hingga membalas customer lebih cepat menggunakan AI Seller Assistant."
     },
     {
-      question: "Apakah AI gratis?",
-      answer: "Setiap akun mendapat AI credit gratis setiap bulan untuk mencoba."
+      question: "Apakah Cuanly benar-benar gratis?",
+      answer: "Ya. Semua fitur utama seperti Kelola Produk, Smart Pricing Calculator, Pencatatan Transaksi, Laporan Profit dapat digunakan gratis tanpa batas. Anda hanya membayar jika ingin menggunakan AI Seller Assistant lebih banyak melalui sistem AI Credit."
     },
     {
-      question: "Apakah data aman?",
-      answer: "Ya, setiap akun memiliki data bisnis sendiri."
+      question: "Apa itu AI Seller Assistant?",
+      answer: "AI Seller Assistant adalah fitur AI yang membantu membuat balasan customer berdasarkan informasi produk yang Anda miliki. Cukup pilih produk, masukkan pertanyaan customer, lalu AI akan membuat jawaban yang siap dikirim dalam hitungan detik."
+    },
+    {
+      question: "Bagaimana cara kerja AI Credit?",
+      answer: "Setiap kali AI membuat satu balasan customer, akan menggunakan 1 AI Credit. Contoh: 1 Balasan AI = 1 AI Credit, 25 Balasan AI = 25 AI Credit. Dengan sistem ini, Anda hanya membayar sesuai penggunaan AI."
+    },
+    {
+      question: "Berapa AI Credit gratis yang saya dapatkan?",
+      answer: "Setiap akun mendapatkan 25 AI Credit gratis setiap bulan. Credit ini dapat digunakan untuk mencoba AI Seller Assistant tanpa biaya tambahan."
+    },
+    {
+      question: "Bagaimana jika AI Credit saya habis?",
+      answer: "Anda tetap dapat menggunakan seluruh fitur gratis Cuanly seperti mengelola produk, menghitung harga jual, mencatat transaksi, dan melihat laporan profit. Jika ingin terus menggunakan AI Seller Assistant, Anda cukup membeli paket AI Credit sesuai kebutuhan."
+    },
+    {
+      question: "Apakah AI menjawab sesuai produk saya?",
+      answer: "Ya. AI menggunakan informasi yang Anda simpan, seperti Nama Produk, Deskripsi Produk, Product Knowledge, Custom Prompt Customer Service. Sehingga jawaban yang dihasilkan lebih relevan, akurat, dan sesuai dengan produk yang sedang ditanyakan customer."
+    },
+    {
+      question: "Bahasa apa saja yang didukung oleh AI Seller Assistant?",
+      answer: "Saat ini Cuanly AI mendukung: 🇮🇩 Bahasa Indonesia, 🇬🇧 English, 🇲🇾 Bahasa Melayu. Kami akan terus menambahkan dukungan bahasa baru pada pembaruan berikutnya."
+    },
+    {
+      question: "Apakah saya bisa mengatur gaya bahasa balasan AI?",
+      answer: "Bisa. Anda dapat membuat Custom Prompt agar AI menjawab sesuai karakter bisnis Anda, misalnya Ramah & Santai, Formal & Profesional, Soft Selling, Hard Selling, Fokus Closing, Customer Service Marketplace. Dengan begitu, balasan AI akan tetap konsisten dengan gaya komunikasi brand Anda."
+    },
+    {
+      question: "Apakah data bisnis saya aman?",
+      answer: "Ya. Setiap akun hanya dapat mengakses data miliknya sendiri. Seluruh data produk, transaksi, dan pengaturan AI dipisahkan untuk setiap pengguna sehingga tetap aman dan privat."
+    },
+    {
+      question: "Apakah saya bisa menggunakan Cuanly untuk banyak produk?",
+      answer: "Tentu. Anda dapat menambahkan dan mengelola produk sebanyak yang dibutuhkan dalam satu akun. AI Seller Assistant juga dapat digunakan untuk semua produk yang telah Anda simpan."
+    },
+    {
+      question: "Apakah saya harus menghubungkan marketplace?",
+      answer: "Tidak. Pada versi pertama (V1), Cuanly dapat langsung digunakan tanpa integrasi marketplace. Anda cukup memasukkan produk dan transaksi secara manual. Integrasi dengan marketplace akan hadir pada versi berikutnya."
     }
   ]
 
@@ -131,23 +167,23 @@ export default function LandingPage() {
   return (
     <div className="flex min-h-screen flex-col bg-[#0a0b0f] text-white">
       {/* Header */}
-      <header className="flex items-center justify-between border-b border-white/10 px-6 py-4 sticky top-0 z-50 bg-[#0a0b0f]/80 backdrop-blur-xl">
-        <div className="flex items-center gap-2">
-          <ChartNoAxesCombined className="h-6 w-6 text-[#0fdc78]" />
-          <span className="text-lg font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Cuanly</span>
-        </div>
-        <nav className="hidden md:flex items-center gap-8">
-          <Link href="#features" className="text-white/70 hover:text-white transition-colors">Fitur</Link>
-          <Link href="#pricing" className="text-white/70 hover:text-white transition-colors">Harga</Link>
-          <Link href="#testimonials" className="text-white/70 hover:text-white transition-colors">Testimoni</Link>
-        </nav>
-        <div className="flex gap-3">
-          <Button variant="ghost" asChild className="text-white hover:text-white hover:bg-white/10">
-            <Link href="/login">Masuk</Link>
-          </Button>
-          <Button asChild className="bg-[#0fdc78] hover:bg-[#0cd66a] text-[#0a0b0f] font-semibold">
-            <Link href="/register">Daftar Gratis</Link>
-          </Button>
+      <header className="flex items-center justify-between border-b border-white/10 py-4 sticky top-0 z-50 bg-[#0a0b0f]/80 backdrop-blur-xl">
+        <div className="container mx-auto px-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <img
+              src="/cuanly-logo-green-white.png"
+              alt="Cuanly Logo"
+              className="h-8 w-auto"
+            />
+          </div>
+          <div className="flex gap-3">
+            <Button variant="ghost" asChild className="text-white hover:text-white hover:bg-white/10">
+              <Link href="/login">Masuk</Link>
+            </Button>
+            <Button asChild className="bg-[#0fdc78] hover:bg-[#0cd66a] text-[#0a0b0f] font-semibold">
+              <Link href="/register">Daftar Gratis</Link>
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -327,103 +363,158 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Logos Section */}
+        {/* New Section: Gratis Untuk Mengelola Bisnis */}
+        <section className="py-20 lg:py-32 bg-[#F3FDF8]">
+          <div className="container mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl lg:text-4xl font-bold text-[#0a0b0f] mb-4">Gratis Untuk Mengelola Bisnis</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+                Kelola produk, hitung harga jual, catat transaksi, dan pantau profit secara gratis tanpa batas. Bayar hanya jika ingin menggunakan AI Seller Assistant lebih banyak.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[
+                {
+                  title: "💰 Harga Jual Tidak Lagi Asal Tebak",
+                  desc: "Hitung harga jual yang menguntungkan berdasarkan biaya bisnis Anda."
+                },
+                {
+                  title: "📊 Profit Terlihat Lebih Jelas",
+                  desc: "Ketahui berapa keuntungan yang benar-benar masuk ke kantong Anda."
+                },
+                {
+                  title: "📦 Semua Data Bisnis Tersimpan Rapi",
+                  desc: "Produk, transaksi, dan laporan dalam satu dashboard."
+                },
+                {
+                  title: "🤖 Customer Terlayani Lebih Cepat",
+                  desc: "AI membantu membuat balasan yang siap kirim dalam hitungan detik."
+                },
+                {
+                  title: "⚡ Mudah Digunakan Sejak Hari Pertama",
+                  desc: "Tidak perlu belajar sistem yang rumit atau membuat spreadsheet sendiri."
+                },
+                {
+                  title: "🎁 Gratis Untuk Mulai Berkembang",
+                  desc: "Gunakan fitur bisnis utama tanpa biaya dan rasakan manfaatnya sebelum upgrade AI."
+                }
+              ].map((point, i) => (
+                <Card key={i} className="bg-white shadow-lg border-none">
+                  <CardContent className="pt-6">
+                    <h3 className="text-xl font-bold text-[#0a0b0f] mb-3">{point.title}</h3>
+                    <p className="text-gray-600">{point.desc}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+        
+        {/* AI SELLER ASSISTANT Section */}
+        <section className="py-20 lg:py-32 bg-[#0fdc78] text-[#0a0b0f]">
+          <div className="container mx-auto px-6">
+            <div className="text-center mb-16">
+              <Badge className="mb-6 bg-[#0a0b0f]/20 text-[#0a0b0f] hover:bg-[#0a0b0f]/30 border-none">✨ AI SELLER ASSISTANT</Badge>
+              <h2 className="text-3xl lg:text-5xl font-bold mb-4">
+                Customer Bertanya.<br />
+                AI Membantu Menjawab.
+              </h2>
+              <p className="text-[#0a0b0f]/80 max-w-2xl mx-auto text-lg mb-12">
+                Tidak perlu mengetik jawaban yang sama berulang kali.<br />
+                Pilih produk yang ditanyakan customer, lalu biarkan Cuanly AI membuat balasan yang cepat, akurat, dan sesuai informasi produk Anda.
+              </p>
+              
+              {/* Chat Demo */}
+              <div className="max-w-3xl mx-auto mb-16">
+                <Card className="bg-white border-none shadow-xl p-6">
+                  <CardContent className="space-y-6">
+                    {/* Customer Message */}
+                    <div className="flex gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                        <MessageSquare className="w-5 h-5 text-gray-600" />
+                      </div>
+                      <div className="bg-gray-100 rounded-2xl rounded-tl-none p-4 shadow-md max-w-[80%]">
+                        <p className="text-[#0a0b0f]">Kak, produk ini aman untuk keramik?</p>
+                      </div>
+                    </div>
+                    {/* AI Message */}
+                    <div className="flex gap-3 justify-end">
+                      <div className="bg-[#0fdc78] rounded-2xl rounded-tr-none p-4 max-w-[80%] text-right">
+                        <p className="text-[#0a0b0f] font-medium">Halo Kak 😊</p>
+                        <p className="text-[#0a0b0f] mt-2">
+                          Produk ini aman digunakan untuk keramik dan berbagai permukaan rumah tangga lainnya. Formula aktifnya membantu mengangkat kerak dan noda membandel tanpa merusak permukaan.
+                        </p>
+                        <p className="text-[#0a0b0f] mt-2">Jika ada pertanyaan lain, saya siap membantu ya Kak 🙏</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* 3 Benefits */}
+              <div className="grid md:grid-cols-3 gap-8 mb-16">
+                {[
+                  {
+                    icon: Zap,
+                    title: "Balas Customer Dalam Hitungan Detik",
+                    desc: "Tidak perlu mengetik ulang jawaban yang sama setiap hari.",
+                  },
+                  {
+                    icon: Bot,
+                    title: "Jawaban Sesuai Produk",
+                    desc: "AI menggunakan informasi produk yang Anda simpan di Cuanly.",
+                  },
+                  {
+                    icon: Check,
+                    title: "Konsisten & Lebih Profesional",
+                    desc: "Memberikan jawaban yang rapi, sopan, dan siap kirim ke customer.",
+                  },
+                ].map((benefit, i) => {
+                  const Icon = benefit.icon;
+                  return (
+                    <Card key={i} className="bg-white border-none shadow-lg hover:shadow-xl transition-shadow text-center">
+                      <CardContent className="pt-6">
+                        <div className="w-12 h-12 rounded-full bg-[#0fdc78]/20 flex items-center justify-center mb-4 mx-auto">
+                          <Icon className="text-[#0fdc78]" />
+                        </div>
+                        <h3 className="text-xl font-bold mb-2 text-[#0a0b0f]">{benefit.title}</h3>
+                        <p className="text-gray-600">{benefit.desc}</p>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* Common Questions Section */}
         <section className="py-20 lg:py-32 bg-white">
           <div className="container mx-auto px-6">
             <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-bold text-[#0a0b0f] mb-4">Pusat Kontrol untuk Semua Stack Customer Anda</h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
-                Terintegrasi dengan semua platform favorit Anda untuk pengalaman tanpa hambatan.
+              <h3 className="text-2xl lg:text-3xl font-bold mb-8 text-[#0a0b0f]">Bayangkan Jika Anda Harus Menjawab Ini Setiap Hari...</h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+                {[
+                  "Kak ready?",
+                  "Kak aman untuk kulit sensitif?",
+                  "Kak cara pakainya gimana?",
+                  "Kak ada COD?",
+                  "Kak bisa untuk keramik?",
+                  "Kak berapa lama hasilnya terlihat?",
+                ].map((question, i) => (
+                    <div key={i} className="bg-[#0fdc78]/20 hover:bg-[#0fdc78] transition-colors rounded-xl px-6 py-4">
+                      <p className="font-medium text-[#0a0b0f]">{question}</p>
+                    </div>
+                  ))}
+              </div>
+              <p className="text-gray-600 max-w-3xl mx-auto text-lg">
+                Dengan Cuanly AI Seller Assistant, cukup pilih produk dan kirim pertanyaan customer.<br />
+                Balasan siap digunakan dalam beberapa detik.
               </p>
             </div>
-            <div className="flex flex-wrap justify-center items-center gap-12 mb-12">
-              {logos.map((logo, i) => (
-                <div key={i} className="text-2xl font-bold text-gray-400 grayscale hover:grayscale-0 transition-all">
-                  {logo}
-                </div>
-              ))}
-            </div>
-            <div className="text-center">
-              <Button asChild className="bg-[#0fdc78] hover:bg-[#0cd66a] text-[#0a0b0f]">
-                <Link href="/register">Mulai Sekarang</Link>
-              </Button>
-            </div>
           </div>
         </section>
-
-        {/* Testimonials Section */}
-        <section id="testimonials" className="py-20 lg:py-32 bg-gradient-to-br from-[#0a0b0f] to-[#0f1118]">
-          <div className="container mx-auto px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-bold mb-4">Apa yang Klien Kami Katakan</h2>
-            </div>
-            <div className="grid md:grid-cols-2 gap-8">
-              {testimonials.map((t, i) => (
-                <Card key={i} className="bg-white/5 border-white/10">
-                  <CardContent className="pt-6">
-                    <div className="flex gap-8">
-                      <div className="flex-1">
-                        <p className="text-white/70 mb-6">"{t.text}"</p>
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-full bg-[#0fdc78] flex items-center justify-center font-bold text-[#0a0b0f]">
-                            {t.logo}
-                          </div>
-                          <div>
-                            <div className="font-semibold text-white">{t.name}</div>
-                            <div className="text-white/60 text-sm">{t.company}</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="hidden md:flex flex-col gap-4">
-                        {["linkedin", "stripe", "dropbox", "atlassian", "zoom"].map((logo, j) => (
-                          <div key={j} className="px-4 py-2 rounded-lg bg-[#0fdc78]/10 border border-[#0fdc78]/20">
-                            <div className="text-sm font-medium text-white capitalize">{logo}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Pricing Section */}
-        <section id="pricing" className="py-20 lg:py-32 bg-white text-[#0a0b0f]">
-          <div className="container mx-auto px-6">
-            <h2 className="text-4xl font-bold text-center mb-12">Pilih Paket Anda</h2>
-            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              {pricingPlans.map((plan, i) => (
-                <Card key={i} className={`relative border-gray-200 ${plan.popular ? 'border-[#0fdc78] scale-105 shadow-lg shadow-[#0fdc78]/10' : ''}`}>
-                  {plan.popular && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                      <Badge className="bg-[#0fdc78] text-white">POPULER</Badge>
-                    </div>
-                  )}
-                  <CardHeader className="relative">
-                    <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                    <p className="text-3xl font-bold text-[#0fdc78] mt-2">{plan.price}</p>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <ul className="space-y-2">
-                      {plan.features.map((feature, j) => (
-                        <li key={j} className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-[#0fdc78]" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    <Button asChild className={`w-full ${plan.popular ? 'bg-[#0fdc78] hover:bg-[#0cd66a] text-[#0a0b0f]' : 'bg-gray-900 hover:bg-gray-800 text-white'}`}>
-                      <Link href="/register">{plan.cta}</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
+        
         {/* Final CTA Section */}
         <section className="py-20 lg:py-32 bg-[#0f1118] relative overflow-hidden">
           <div className="absolute inset-0 opacity-30">
@@ -432,19 +523,116 @@ export default function LandingPage() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] border border-white/10 rounded-full"></div>
           </div>
           <div className="container mx-auto px-6 relative z-10">
-            <div className="max-w-3xl mx-auto">
-              <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-                <div>
-                  <h2 className="text-3xl lg:text-4xl font-bold mb-4">Mulai Demo AI Seller Assistant Anda</h2>
-                  <p className="text-white/60">
-                    Bergabung dengan ribuan seller yang sudah merasakan manfaatnya.
+            <div className="max-w-5xl mx-auto">
+              <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+                {/* Left Content */}
+                <div className="flex-1">
+                  <h2 className="text-3xl lg:text-4xl font-bold mb-4 text-white">Jualan Lebih Cerdas.<br />Mulai Dengan AI Seller Assistant.</h2>
+                  <p className="text-white/70 mb-8 text-lg">
+                    Cukup pilih produk dan masukkan pertanyaan customer. Cuanly AI akan membantu membuat balasan yang siap dikirim dalam hitungan detik.
                   </p>
+                  <Button size="lg" asChild className="bg-[#0fdc78] hover:bg-[#0cd66a] text-[#0a0b0f] font-semibold whitespace-nowrap mb-6">
+                    <Link href="/register">Dapatkan 25 AI Credit Gratis</Link>
+                  </Button>
+                  <div className="flex flex-wrap gap-4">
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-[#0fdc78]" />
+                      <span className="text-white/70 text-sm">25 AI Credit Gratis Setiap Bulan</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-[#0fdc78]" />
+                      <span className="text-white/70 text-sm">Tidak Perlu Kartu Kredit</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-[#0fdc78]" />
+                      <span className="text-white/70 text-sm">Siap Digunakan Dalam 1 Menit</span>
+                    </div>
+                  </div>
                 </div>
-                <Button size="lg" asChild className="bg-[#0fdc78] hover:bg-[#0cd66a] text-[#0a0b0f] font-semibold whitespace-nowrap">
-                  <Link href="/register">Daftar Gratis</Link>
-                </Button>
+                
+                {/* Right Card */}
+                <Card className="w-full lg:w-80 bg-white/5 border-white/10">
+                  <CardContent className="p-8">
+                    <div className="text-center mb-6">
+                      <div className="text-3xl mb-2">🎁</div>
+                      <h3 className="text-xl font-bold text-white">Free Plan</h3>
+                    </div>
+                    <div className="space-y-4 mb-8">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-[#0fdc78]">25 AI Credit</div>
+                        <div className="text-white/60">/ Bulan</div>
+                      </div>
+                      <div className="text-center text-white/70">
+                        ≈ 25 Balasan Customer
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-white/70">
+                          <Check className="w-4 h-4 text-[#0fdc78]" />
+                          <span>Gratis Selamanya</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white/70">
+                          <Check className="w-4 h-4 text-[#0fdc78]" />
+                          <span>Tanpa Kartu Kredit</span>
+                        </div>
+                      </div>
+                    </div>
+                    <Button asChild className="w-full bg-[#0fdc78] hover:bg-[#0cd66a] text-[#0a0b0f] font-semibold">
+                      <Link href="/register">Daftar Gratis</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
               </div>
             </div>
+          </div>
+        </section>
+        
+        {/* FAQ Section */}
+        <section id="faq" className="py-20 lg:py-32 bg-white text-[#0a0b0f]">
+          <div className="container mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl lg:text-4xl font-bold mb-4">Semua yang Perlu Anda Ketahui Tentang Cuanly</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+                Masih ada pertanyaan? Berikut beberapa hal yang paling sering ditanyakan oleh seller sebelum mulai menggunakan Cuanly.
+              </p>
+            </div>
+            
+            <div className="max-w-3xl mx-auto space-y-4">
+              {(showAllFaqs ? faqs : faqs.slice(0, 5)).map((faq, i) => (
+                <Card key={i} className="bg-gray-50 border-none">
+                  <CardContent className="p-6">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                      className="w-full flex items-center justify-between text-left"
+                    >
+                      <span className="font-semibold text-lg text-[#0a0b0f]">{faq.question}</span>
+                      {openFaq === i ? (
+                        <ChevronUp className="w-5 h-5 text-[#0fdc78]" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-500" />
+                      )}
+                    </button>
+                    {openFaq === i && (
+                      <div className="mt-4 text-gray-600">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            {!showAllFaqs && faqs.length > 5 && (
+              <div className="text-center mt-12">
+                <Button
+                  onClick={() => setShowAllFaqs(true)}
+                  variant="ghost"
+                  className="text-[#0a0b0f] hover:text-[#0fdc78] hover:bg-[#0fdc78]/10"
+                >
+                  <ChevronDown className="w-4 h-4 mr-2" />
+                  Lihat Semua Pertanyaan
+                </Button>
+              </div>
+            )}
           </div>
         </section>
       </main>
@@ -453,11 +641,14 @@ export default function LandingPage() {
       <footer className="border-t border-white/10 py-8 bg-[#0a0b0f]">
         <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <ChartNoAxesCombined className="h-5 w-5 text-[#0fdc78]" />
-            <span className="font-bold text-white">Cuanly</span>
+            <img
+              src="/cuanly-logo-green-white.png"
+              alt="Cuanly Logo"
+              className="h-6 w-auto"
+            />
           </div>
           <p className="text-sm text-white/50">
-            © 2024 Cuanly. All rights reserved.
+            © 2026 Cuanly. All rights reserved.
           </p>
         </div>
       </footer>

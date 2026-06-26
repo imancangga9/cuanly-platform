@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Cuanly - Smart Profit Management",
   description: "Hitung Harga, Kelola Profit, Kembangkan Bisnis",
+  icons: {
+    icon: "/fav-cuanly-logo-green.png",
+  },
 }
 
 export default function RootLayout({
