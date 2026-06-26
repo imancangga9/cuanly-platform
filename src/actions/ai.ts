@@ -460,8 +460,9 @@ export async function generateAIAnswer(
     }
     console.log("✅ API key found (starts with):", apiKey.substring(0, 10), "...");
 
-    // Daftar model fallback yang stabil di OpenRouter
+    // Daftar model fallback yang stabil di OpenRouter - urutkan model terbaru terlebih dahulu
     const models = [
+      "qwen/qwen3-coder:free",
       "openai/gpt-oss-120b:free",
       "mistralai/mistral-7b-instruct:free",
       "meta-llama/llama-3-8b-instruct:free"
@@ -502,6 +503,7 @@ export async function generateAIAnswer(
         }
 
         const data = await response.json();
+        console.log("OpenRouter response data:", JSON.stringify(data, null, 2));
         const answer = data.choices?.[0]?.message?.content;
 
         if (answer) {
@@ -515,7 +517,7 @@ export async function generateAIAnswer(
         
       } catch (modelError) {
         console.error(`❌ Model ${model} exception:`, modelError);
-        lastError = modelError;
+        lastError = modelError instanceof Error ? modelError.message : String(modelError);
         continue;
       }
     }

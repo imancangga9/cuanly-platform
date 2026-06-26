@@ -85,8 +85,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         )}
       >
         <div className="flex h-14 items-center gap-2 border-b border-[oklch(0.269_0_0)] px-6">
-          <ChartNoAxesCombined className="h-6 w-6 text-[#0fdc78]" />
-          <span className="text-lg font-bold tracking-tight">Cuanly</span>
+          <img
+            src="/cuanly-logo-green-white.png"
+            alt="Cuanly Logo"
+            className="h-8 w-auto"
+          />
         </div>
 
         {/* Credit Display */}
